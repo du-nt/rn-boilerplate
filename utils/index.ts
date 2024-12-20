@@ -18,14 +18,14 @@ export const getErrorMessage = (error: unknown) => {
 
 export const removeAllExceptKey = (
   queryClient: QueryClient,
-  keyToKeep: string
+  keyToKeep: QueryKey
 ) => {
   const queryCache = queryClient.getQueryCache()
 
   const keysToRemove = queryCache
     .getAll()
     .reduce((keys: QueryKey[], { queryKey }) => {
-      if (JSON.stringify(queryKey).includes(keyToKeep)) {
+      if (JSON.stringify(queryKey) === JSON.stringify(keyToKeep)) {
         return keys
       }
 

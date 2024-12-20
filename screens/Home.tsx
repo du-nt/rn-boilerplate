@@ -2,12 +2,25 @@ import { useTranslation } from 'react-i18next'
 import { StyleSheet, Text, View } from 'react-native'
 import { Button } from 'react-native-paper'
 
-import useBoundStore from '../stores'
+import useMutation from '../hooks/useMutation'
+import useBoundStore from '../stores/bound_store'
+import useUserStore from '../stores/user_store'
 
 export default function Home() {
   const { t } = useTranslation()
-  const user = useBoundStore((state) => state.user)
-  const logout = useBoundStore((state) => state.unAuthenticate)
+  const user = useUserStore((state) => state.user)
+  const unAuthenticate = useBoundStore((state) => state.unAuthenticate)
+
+  const { mutate } = useMutation<undefined>({
+    endpoint: 'v1/sessions/22265?app=client_app',
+    config: {
+      method: 'DELETE'
+    },
+    onSuccess: unAuthenticate,
+    onError: unAuthenticate
+  })
+
+  const handleLogout = () => mutate(undefined)
 
   return (
     <View style={styles.container}>
@@ -15,7 +28,7 @@ export default function Home() {
         {t('common.hello', { name: user?.name })}👋
       </Text>
 
-      <Button mode='contained' onPress={logout}>
+      <Button mode='contained' onPress={handleLogout}>
         Logout
       </Button>
     </View>

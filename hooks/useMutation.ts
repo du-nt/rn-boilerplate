@@ -27,13 +27,16 @@ export default function useMutation<
 
   const defaultMutationFn: MutationFunction<TData, TVariables> = async (
     variables: TVariables
-  ): Promise<TData> =>
-    axiosInstance<TError, { data: TData }>({
+  ): Promise<TData> => {
+    const { data } = await axiosInstance<TError, { data: TData }>({
       ...config,
       url: endpoint,
       method: config?.method || 'POST',
       data: variables
-    }).then((response) => response.data)
+    })
+
+    return data
+  }
 
   return RQUseMutation(
     {

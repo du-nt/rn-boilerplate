@@ -18,7 +18,7 @@ import { useQueryClient } from '@tanstack/react-query'
 
 import useMutation from '../hooks/useMutation'
 import { LoginFormSchema, LoginFormValues } from '../schemas/login_form_schema'
-import useBoundStore from '../stores'
+import useUserStore from '../stores/user_store'
 import { User } from '../types'
 
 export default function Login() {
@@ -26,7 +26,7 @@ export default function Login() {
   const theme: MD3Theme = useTheme()
   const styles = makeStyles(theme)
 
-  const setUser = useBoundStore((state) => state.setUser)
+  const setUser = useUserStore((state) => state.setUser)
   const queryClient = useQueryClient()
 
   const {
@@ -46,13 +46,11 @@ export default function Login() {
 
   const { isPending, mutate } = useMutation<LoginFormValues, User>({
     endpoint:
-      '/v1/auth?needs[]=access-token&needs[]=firebase-access-token&needs[]=license',
+      'v1/auth?needs[]=access-token&needs[]=firebase-access-token&needs[]=license',
     onSuccess: (user: User) => {
       setUser(user)
       queryClient.invalidateQueries({
-        queryKey: [
-          `/v1/agents/users/${user?.username}/sip-account?customerId=${user?.agreementID}`
-        ]
+        queryKey: ['user']
       })
     },
     onError: (error) => {
@@ -62,7 +60,6 @@ export default function Login() {
   })
 
   const onSubmit = (formValues: LoginFormValues) => {
-    // removeAllExceptKey(queryClient, 'v1/agents/users')
     queryClient.removeQueries()
     mutate(formValues)
   }

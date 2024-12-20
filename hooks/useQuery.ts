@@ -33,11 +33,9 @@ export function useQuery<
     queryKey: key
   }: QueryFunctionContext): Promise<TQueryFnData> => {
     try {
-      const url = key.join('/')
-
       const { data } = await axiosInstance<TError, { data: TQueryFnData }>({
         ...config,
-        url,
+        url: config?.url || `/${key[0]}`,
         method: config?.method || 'GET'
       })
 

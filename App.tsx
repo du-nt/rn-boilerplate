@@ -6,7 +6,7 @@ import MainTabs from './navigators/main_tabs'
 const Stack = createNativeStackNavigator()
 
 import { StatusBar, useColorScheme } from 'react-native'
-import NetworkLogger from 'react-native-network-logger'
+// import NetworkLogger from 'react-native-network-logger'
 import { PaperProvider } from 'react-native-paper'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 
@@ -17,8 +17,8 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClient } from './configs/query_client'
 import { CombinedDarkTheme, CombinedDefaultTheme } from './configs/theme'
 import { useQuery } from './hooks/useQuery'
-import useUserStore from './stores'
-import useBoundStore from './stores'
+import useBoundStore from './stores/bound_store'
+import useUserStore from './stores/user_store'
 import { SipAccount } from './types'
 
 function App() {
@@ -26,12 +26,16 @@ function App() {
 
   const sipAccount = useBoundStore((state) => state.sipAccount)
   const setSipAccount = useBoundStore((state) => state.setSipAccount)
+
   const user = useUserStore((state) => state.user)
+  const hasHydrated: boolean = useUserStore((state) => state._hasHydrated)
 
   useQuery<SipAccount>({
-    queryKey: [
-      `/v1/agents/users/${user?.username}/sip-account?customerId=${user?.agreementID}`
-    ],
+    queryKey: ['user'],
+    config: {
+      url: `/v1/agents/users/${user?.username}/sip-account?customerId=${user?.agreementID}`
+    },
+    enabled: hasHydrated,
     onSuccess: (data: SipAccount) => {
       setSipAccount(data)
       LottieSplashScreen.hide()
@@ -39,7 +43,6 @@ function App() {
     onError: () => LottieSplashScreen.hide()
   })
 
-  console.log('first', user?.accountID)
   const isDarkTheme = colorScheme === 'dark'
   const theme = isDarkTheme ? CombinedDarkTheme : CombinedDefaultTheme
 
@@ -74,7 +77,7 @@ export default function Root() {
   return (
     <QueryClientProvider client={queryClient}>
       <App />
-      <NetworkLogger />
+      {/* <NetworkLogger /> */}
     </QueryClientProvider>
   )
 }

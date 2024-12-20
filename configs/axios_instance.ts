@@ -5,7 +5,8 @@ import axios, {
 } from 'axios'
 
 import { DOMAINS } from '../constants'
-import useBoundStore from '../stores'
+import useBoundStore from '../stores/bound_store'
+import useUserStore from '../stores/user_store'
 
 const defaultHeaders = {
   'Content-Type': 'application/json'
@@ -19,7 +20,7 @@ const axiosInstance = axios.create({
 const onRequest = async (
   config: InternalAxiosRequestConfig
 ): Promise<InternalAxiosRequestConfig> => {
-  const accessToken = useBoundStore.getState().user?.accessToken
+  const accessToken = useUserStore.getState().user?.accessToken
 
   config.headers.set('Authorization', `Bearer ${accessToken}`)
 
